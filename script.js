@@ -1,55 +1,68 @@
-let minValue = parseInt(prompt('Минимальное знание числа для игры','-999'));
+let minValue = parseInt(prompt('Минимальное значение числа для игры','-999'));
 if (isNaN(minValue) || minValue == -999) {
-    minValue = -999
-};
-(minValue < -999) ? minValue = -999 : minValue >= -999;
+   minValue = -999;
+}
+minValue = (minValue < -999 || minValue > 999) ? -999 : minValue;
 
-let maxValue = parseInt(prompt('Максимальное знание числа для игры','999'));
+let maxValue = parseInt(prompt('Максимальное значение числа для игры','999'));
 if (isNaN(maxValue) || maxValue == 999) {
-    maxValue = 999
-};
-(maxValue > 999) ? maxValue = 999 : maxValue <= 999;
+    maxValue = 999;
+}
+maxValue = (maxValue > 999 || maxValue < minValue) ? 999 : maxValue;
 
 alert(`Загадайте любое целое число от ${minValue} до ${maxValue}, а я его угадаю`);
 
-let answerNumber  = Math.floor((minValue + maxValue) / 2);
+let answerNumber = Math.floor((minValue + maxValue) / 2);
 let orderNumber = 1;
 let gameRun = true; 
-
-function text(answerNumber){
-    var ones = ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять',
-                'десять', 'одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 'пятнадцать', 'шестнадцать',
-                'семнадцать', 'восемнадцать', 'девятнадцать'];
-    var tens = ['', '', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят',
-                'девяносто'];
-    var hundreds = ['', 'сто', 'двести', 'триста', 'четыреста', 'пятьсот', 'шестьсот', 'семьсот', 'восемьсот', 'девятьсот'];            
-  
-    /*var negativetext = negativetext.Math.sign(answerNumber) <= -1 = 'минус';*/
-    var numString = answerNumber.toString();
-  
-    if (answerNumber < 20) {
-      return ones[answerNumber];
-    }
-  
-    if (numString.length === 2) {
-      return tens[numString[0]] + ' ' + ones[numString[1]];
-    }
-  
-    if (numString.length === 3) {
-      if (numString[0] === '0' && numString[2] === '1')
-        return hundreds[numString[0]] + ones[numString[1]];
-      else
-        return hundreds[numString[0]] + ' ' + tens[numString[1]] + ' ' + ones[numString[2]];
-    }
-
-       /*return text.length < 20 ? text : number;*/
-  }
-  text(answerNumber);
 
 const orderNumberField = document.getElementById('orderNumberField');
 const answerField = document.getElementById('answerField');
 orderNumberField.innerText = orderNumber;
-answerField.innerText = `Вы загадали число ${answerNumber}?`;
+answerField.innerText = `Вы загадали число ${text(answerNumber)}?`;
+
+function text(answerNumber) {
+    let ones = ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять', 0];
+    let teen = ['одинадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 'пятнадцать', 'шестнадцать', 'семнадцать', 'восемнадцать', 'девятнадцать'];
+    let tens = ['десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'];
+    let hundreds = ['', 'сто', 'двести', 'триста', 'четыреста', 'пятьсот', 'шестьсот', 'семьсот', 'восемьсот', 'девятьсот'];
+    let text = Math.sign(answerNumber) === -1 ? 'минус ' : '';
+    let numString = Math.abs(answerNumber).toString();
+    if (numString.length === 3) {
+        text += hundreds[numString[0]];
+        if (numString[1] + numString[2] > 20 && numString[2] != 0) {
+            text += ' ' + tens[numString[1] - 1] + ' ' + ones[numString[2]];
+        } else if (numString[1] + numString[2] < 20 && numString[1] + numString[2] > 10) {
+            text += ' ' + teen[numString[2] - 1];
+        } else if (numString[1] + numString[2] == 20) {
+            text += ' ' + tens[1];
+        } else if (numString[1] + numString[2] == 10) {
+            text += ' ' + tens[0];
+        } else if (numString[1] + numString[2] == 00) {
+            text += ' ';
+        } else if (numString[2] == 0) {
+            text += ' ' + tens[numString[1] - 1];
+        }else if (numString[1] == 0) {
+            text += ' ' + ones[numString[2]];
+        }
+    } else if (numString.length === 2) {
+        if (numString[1] == 0) {
+            text += tens[numString[0] - 1];
+        } else if (numString[1] != 0 && numString[0] == 1) {
+            text += teen[numString[1] - 1];
+        } else {
+            text += tens[numString[0] - 1] + ' ' + ones[numString[1]]
+        }
+    } else if (numString.length === 1) {
+        if (numString[0] == 0) {
+            text += ones[10];
+        } else {
+            text += ones[numString[0]];
+        }
+    }
+    return text.length < 20 ? text : answerNumber;
+}
+text(answerNumber);
 
 document.getElementById('btnRetry').addEventListener('click', function () {
     minValue = -999;
@@ -73,7 +86,7 @@ document.getElementById('btnOver').addEventListener('click', function () {
             answerNumber  = Math.floor((minValue + maxValue) / 2);
             orderNumber++;
             orderNumberField.innerText = orderNumber;
-            answerField.innerText = `Вы загадали число ${answerNumber }?`;
+            answerField.innerText = `Вы загадали число ${text(answerNumber)}?`;
         }
     }
 })
@@ -94,7 +107,7 @@ document.getElementById('btnLess').addEventListener('click', function () {
             answerNumber = Math.floor((minValue + maxValue) / 2);
             orderNumber++;
             orderNumberField.innerText = orderNumber;
-            answerField.innerText = `Вы загадали число ${answerNumber}?`;
+            answerField.innerText = `Вы загадали число ${text(answerNumber)}?`;
         }
     }
 })
@@ -102,9 +115,9 @@ document.getElementById('btnLess').addEventListener('click', function () {
 document.getElementById('btnEqual').addEventListener('click', function () {
     if (gameRun){ 
         answerField.innerText = ([
-        `Я всегда угадываю! Это число ${answerNumber}!\n\u{1F60E}`, 
-        `Это ${answerNumber}! Я молодец!!!\n\u{1F929}`, 
-        `${answerNumber}? Снова в точку!\n\u{1F61C}`]
+        `Я всегда угадываю! Это число ${text(answerNumber)}!\n\u{1F60E}`, 
+        `Это ${text(answerNumber)}! Я молодец!!!\n\u{1F929}`, 
+        `${text(answerNumber)}? Снова в точку!\n\u{1F61C}`]
         [Math.floor(Math.random() * 3)]
         );
         gameRun = false;
